@@ -2,10 +2,63 @@
 
 import pygame as pg
 
+BLOCK_SIZE = 20
+
+
+class Block():
+    def __init__(self, colour, start_params, pos):
+        self.colour = colour
+        self.start = start_params
+        self.x = pos[0]
+        self.y = pos[1]
+        self.direction = [0, -BLOCK_SIZE]
+
+    def make_block(self):
+        # Create a surface to contain a square
+        square = pg.Surface((BLOCK_SIZE, BLOCK_SIZE), pg.SRCALPHA)
+        # Draw a square onto the "square" surface
+        pg.draw.rect(square, self.colour, self.start)
+
+        return square
+
+    def update_pos(self):
+        self.x += self.direction[0]
+        self.y += self.direction[1]
+
+    def change_direction(self, new_dir):
+        if new_dir == 'u':
+            self.direction = [0, -BLOCK_SIZE]
+        elif new_dir == 'd':
+            self.direction = [0, BLOCK_SIZE]
+        elif new_dir == 'l':
+            self.direction = [-BLOCK_SIZE, 0]
+        elif new_dir == 'r':
+            self.direction = [BLOCK_SIZE, 0]
+
+
+def check_keypress(input_event, block_object):
+    if input_event.type == pg.QUIT:
+        return True
+    elif input_event.type == pg.KEYDOWN:
+        if input_event.key == pg.K_ESCAPE:
+            return True
+        elif input_event.key == pg.K_UP:
+            block_object.change_direction('u')
+        elif input_event.key == pg.K_DOWN:
+            block_object.change_direction('d')
+        elif input_event.key == pg.K_LEFT:
+            block_object.change_direction('l')
+        elif input_event.key == pg.K_RIGHT:
+            block_object.change_direction('r')
+
+    return False
+
 
 def main():
     # Initialise PyGame
     pg.init()
+
+    clock = pg.time.Clock()
 
     # Define window parameters
     win_size = 500
@@ -14,50 +67,30 @@ def main():
     blue = (0, 0, 255)
 
     # Define temporary parameters for rectangle, will eventually make a class
-    length = 20
-    start_coord = (win_size / 2) - (length / 2)
-    start_pos_and_size = (0, 0, length, length)
+    start_coord = (win_size / 2) - (BLOCK_SIZE / 2)
+    # start_pos_and_size = (0, 0, BLOCK_SIZE, BLOCK_SIZE)
 
     # Create window
     screen = pg.display.set_mode(size)
 
-    # Create a surface to contain a square
-    square = pg.Surface((length, length), pg.SRCALPHA)
-    # Draw a square onto the "square" surface
-    pg.draw.rect(square, blue, start_pos_and_size)
+    block = Block(blue, (0, 0, BLOCK_SIZE, BLOCK_SIZE), [start_coord, start_coord])
+    square = block.make_block()
 
-    # Set initial coordinates and speed
-    coords = [start_coord, start_coord]
-    speed = [0, -2]
+
 
     game_over = False
     # Game loop
     while game_over == False:
+        clock.tick(8)
         for event in pg.event.get():
-            if event.type == pg.QUIT:
-                game_over = True
-                continue
-            elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_ESCAPE:
-                    game_over = True
-                    continue
-                elif event.key == pg.K_UP:
-                    speed = [0, -2]
-                elif event.key == pg.K_DOWN:
-                    speed = [0, 2]
-                elif event.key == pg.K_RIGHT:
-                    speed = [2, 0]
-                elif event.key == pg.K_LEFT:
-                    speed = [-2, 0]
+            game_over = check_keypress(event, block)
 
-        # Start off moving up
-        coords[0] += speed[0]
-        coords[1] += speed[1]
+        block.update_pos()
 
         # Clear the screen before the next frame
         screen.fill(black)
         # Draw rectangle to screen
-        screen.blit(square, coords)
+        screen.blit(square, [block.x, block.y])
         # Swap buffers
         pg.display.flip()
 
@@ -66,3 +99,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# TODO:
+# Implement wall collision detection
