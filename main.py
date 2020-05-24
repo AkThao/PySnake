@@ -6,34 +6,37 @@ BLOCK_SIZE = 20
 WIN_SIZE = 500
 
 
-class Block():
-    def __init__(self, colour, start_params, pos):
-        self.colour = colour
-        self.start = start_params
+class Head():
+    blue = (0, 0, 255)
+    start_params = (0, 0, BLOCK_SIZE, BLOCK_SIZE)
+    def __init__(self, pos):
         self.x = pos[0]
         self.y = pos[1]
+        self.last_x = self.x
+        self.last_y = self.y
         self.direction = [0, -BLOCK_SIZE]
+        self.square = None
 
     def make_block(self):
         # Create a surface to contain a square
-        square = pg.Surface((BLOCK_SIZE, BLOCK_SIZE), pg.SRCALPHA)
+        self.square = pg.Surface((BLOCK_SIZE, BLOCK_SIZE), pg.SRCALPHA)
         # Draw a square onto the "square" surface
-        pg.draw.rect(square, self.colour, self.start)
-
-        return square
+        pg.draw.rect(self.square, self.blue, self.start_params)
 
     def update_pos(self):
+        self.last_x = self.x
+        self.last_y = self.y
         self.x += self.direction[0]
         self.y += self.direction[1]
 
     def change_direction(self, new_dir):
-        if new_dir == 'u':
+        if new_dir == 'u' and self.direction != [0, BLOCK_SIZE]:
             self.direction = [0, -BLOCK_SIZE]
-        elif new_dir == 'd':
+        elif new_dir == 'd' and self.direction != [0, -BLOCK_SIZE]:
             self.direction = [0, BLOCK_SIZE]
-        elif new_dir == 'l':
+        elif new_dir == 'l' and self.direction != [BLOCK_SIZE, 0]:
             self.direction = [-BLOCK_SIZE, 0]
-        elif new_dir == 'r':
+        elif new_dir == 'r' and self.direction != [-BLOCK_SIZE, 0]:
             self.direction = [BLOCK_SIZE, 0]
 
     def check_collision(self):
@@ -41,6 +44,34 @@ class Block():
             return True
 
         return False
+
+    def get_pos(self):
+        return (self.last_x, self.last_y)
+
+
+class Block(Head):
+    def __init__(self, next_block):
+        self.next = next_block
+        pos = next_block.get_pos()
+        self.x = pos[0]
+        self.y = pos[1]
+        self.last_x = self.x
+        self.last_y = self.y
+        self.ready = 0
+
+    def update_pos(self):
+        self.last_x = self.x
+        self.last_y = self.y
+        next_pos = self.next.get_pos()
+        self.x = next_pos[0]
+        self.y = next_pos[1]
+
+
+def add_block(snake_arr):
+    snake_arr.append(Block(snake_arr[-1]))
+    snake_arr[-1].make_block()
+
+    return snake_arr
 
 
 def check_keypress(input_event, block_object):
@@ -70,34 +101,46 @@ def main():
     # Define window parameters
     size = (WIN_SIZE, WIN_SIZE) # (width, height)
     black = (0, 0, 0)
-    blue = (0, 0, 255)
 
     # Define temporary parameters for rectangle, will eventually make a class
     start_coord = (WIN_SIZE / 2) - (BLOCK_SIZE / 2)
-    # start_pos_and_size = (0, 0, BLOCK_SIZE, BLOCK_SIZE)
 
     # Create window
     screen = pg.display.set_mode(size)
 
-    block = Block(blue, (0, 0, BLOCK_SIZE, BLOCK_SIZE), [start_coord, start_coord])
-    square = block.make_block()
+    head = Head([start_coord, start_coord])
+    head.make_block()
 
+    bl2 = Block(head)
+    bl2.make_block()
 
+    bl3 = Block(bl2)
+    bl3.make_block()
+
+    snake = []
+    snake.append(head)
+    snake.append(bl2)
+    snake.append(bl3)
 
     game_over = False
     # Game loop
     while game_over == False:
         clock.tick(10)
         for event in pg.event.get():
-            game_over = check_keypress(event, block)
+            game_over = check_keypress(event, head)
+        if game_over == True:
+            continue
 
-        game_over = block.check_collision()
-        block.update_pos()
+        game_over = head.check_collision()
+
+        for s in snake:
+            s.update_pos()
 
         # Clear the screen before the next frame
         screen.fill(black)
-        # Draw rectangle to screen
-        screen.blit(square, [block.x, block.y])
+        # Draw block to screen
+        for s in snake:
+            screen.blit(s.square, [s.x, s.y])
         # Swap buffers
         pg.display.flip()
 
