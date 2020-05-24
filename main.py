@@ -3,6 +3,7 @@
 import pygame as pg
 
 BLOCK_SIZE = 20
+WIN_SIZE = 500
 
 
 class Block():
@@ -35,6 +36,12 @@ class Block():
         elif new_dir == 'r':
             self.direction = [BLOCK_SIZE, 0]
 
+    def check_collision(self):
+        if self.x in (0, WIN_SIZE) or self.y in (0, WIN_SIZE):
+            return True
+
+        return False
+
 
 def check_keypress(input_event, block_object):
     if input_event.type == pg.QUIT:
@@ -61,13 +68,12 @@ def main():
     clock = pg.time.Clock()
 
     # Define window parameters
-    win_size = 500
-    size = (win_size, win_size) # (width, height)
+    size = (WIN_SIZE, WIN_SIZE) # (width, height)
     black = (0, 0, 0)
     blue = (0, 0, 255)
 
     # Define temporary parameters for rectangle, will eventually make a class
-    start_coord = (win_size / 2) - (BLOCK_SIZE / 2)
+    start_coord = (WIN_SIZE / 2) - (BLOCK_SIZE / 2)
     # start_pos_and_size = (0, 0, BLOCK_SIZE, BLOCK_SIZE)
 
     # Create window
@@ -81,10 +87,11 @@ def main():
     game_over = False
     # Game loop
     while game_over == False:
-        clock.tick(8)
+        clock.tick(10)
         for event in pg.event.get():
             game_over = check_keypress(event, block)
 
+        game_over = block.check_collision()
         block.update_pos()
 
         # Clear the screen before the next frame
@@ -102,4 +109,4 @@ if __name__ == "__main__":
 
 
 # TODO:
-# Implement wall collision detection
+# Extend snake body
