@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import pygame as pg
+from random import randint
 
 BLOCK_SIZE = 20
 WIN_SIZE = 500
@@ -95,6 +96,33 @@ def check_keypress(input_event, block_object):
     return False
 
 
+class Food():
+    def __init__(self):
+        self.exists = False
+        self.x = None
+        self.y = None
+        self.square = None
+
+    def add_food(self):
+        if self.exists == False:
+             # Create a surface to contain a square
+            self.square = pg.Surface((BLOCK_SIZE, BLOCK_SIZE), pg.SRCALPHA)
+            # Draw a square onto the "square" surface
+            pg.draw.rect(self.square, (255, 0, 0), (0, 0, BLOCK_SIZE, BLOCK_SIZE))
+
+            self.x = randint(0, WIN_SIZE - BLOCK_SIZE)
+            self.y = randint(0, WIN_SIZE - BLOCK_SIZE)
+            self.exists = True
+
+    def check_if_eaten(self, snake):
+        snake_x, snake_y = snake[0]
+        if self.x <= snake_x <= self.x + BLOCK_SIZE and self.y <= snake_y <= self.y + BLOCK_SIZE:
+            self.exists = False
+            return True
+
+        return False
+
+
 def main():
     # Initialise PyGame
     pg.init()
@@ -119,8 +147,8 @@ def main():
     snake = add_block(snake)
     snake = add_block(snake)
 
-    i = 0
     game_over = False
+    food = Food()
     # Game loop
     while game_over == False:
         clock.tick(10)
@@ -135,24 +163,22 @@ def main():
         for s in snake:
             s.update_pos()
 
+        food.add_food()
+        eaten = food.check_if_eaten(snake_pos)
+        if eaten == True:
+            snake = add_block(snake)
+
         # Clear the screen before the next frame
         screen.fill(black)
         # Draw block to screen
         for s in snake:
             screen.blit(s.square, [s.x, s.y])
+        screen.blit(food.square, [food.x, food.y])
         # Swap buffers
         pg.display.flip()
-
-        i += 1
-        if i % 10 == 0:
-            snake = add_block(snake)
 
     pg.quit()
 
 
 if __name__ == "__main__":
     main()
-
-
-# TODO:
-# Stop snake from colliding with self
