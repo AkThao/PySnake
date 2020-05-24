@@ -39,8 +39,11 @@ class Head():
         elif new_dir == 'r' and self.direction != [-BLOCK_SIZE, 0]:
             self.direction = [BLOCK_SIZE, 0]
 
-    def check_collision(self):
+    def check_collision(self, pos_list):
         if self.x in (0, WIN_SIZE) or self.y in (0, WIN_SIZE):
+            return True
+
+        if (self.x, self.y) in pos_list[3:]:
             return True
 
         return False
@@ -111,17 +114,12 @@ def main():
     head = Head([start_coord, start_coord])
     head.make_block()
 
-    bl2 = Block(head)
-    bl2.make_block()
-
-    bl3 = Block(bl2)
-    bl3.make_block()
-
     snake = []
     snake.append(head)
-    snake.append(bl2)
-    snake.append(bl3)
+    snake = add_block(snake)
+    snake = add_block(snake)
 
+    i = 0
     game_over = False
     # Game loop
     while game_over == False:
@@ -131,7 +129,8 @@ def main():
         if game_over == True:
             continue
 
-        game_over = head.check_collision()
+        snake_pos = [block.get_pos() for block in snake]
+        game_over = head.check_collision(snake_pos)
 
         for s in snake:
             s.update_pos()
@@ -144,6 +143,10 @@ def main():
         # Swap buffers
         pg.display.flip()
 
+        i += 1
+        if i % 10 == 0:
+            snake = add_block(snake)
+
     pg.quit()
 
 
@@ -152,4 +155,4 @@ if __name__ == "__main__":
 
 
 # TODO:
-# Extend snake body
+# Stop snake from colliding with self
