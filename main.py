@@ -26,7 +26,9 @@ def main():
     # Draw a square onto the "square" surface
     pg.draw.rect(square, blue, start_pos_and_size)
 
-    coords = (start_coord, start_coord)
+    # Set initial coordinates and speed
+    coords = [start_coord, start_coord]
+    speed = [0, -2]
 
     game_over = False
     # Game loop
@@ -39,6 +41,18 @@ def main():
                 if event.key == pg.K_ESCAPE:
                     game_over = True
                     continue
+                elif event.key == pg.K_UP:
+                    speed = [0, -2]
+                elif event.key == pg.K_DOWN:
+                    speed = [0, 2]
+                elif event.key == pg.K_RIGHT:
+                    speed = [2, 0]
+                elif event.key == pg.K_LEFT:
+                    speed = [-2, 0]
+
+        # Start off moving up
+        coords[0] += speed[0]
+        coords[1] += speed[1]
 
         # Clear the screen before the next frame
         screen.fill(black)
@@ -47,7 +61,7 @@ def main():
         # Swap buffers
         pg.display.flip()
 
-    # pg.quit()
+    pg.quit()
 
 
 if __name__ == "__main__":
