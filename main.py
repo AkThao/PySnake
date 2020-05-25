@@ -110,8 +110,8 @@ class Food():
             # Draw a square onto the "square" surface
             pg.draw.rect(self.square, (255, 0, 0), (0, 0, BLOCK_SIZE, BLOCK_SIZE))
 
-            self.x = randint(0, (WIN_SIZE - BLOCK_SIZE)/BLOCK_SIZE) * BLOCK_SIZE
-            self.y = randint(0, (WIN_SIZE - BLOCK_SIZE)/BLOCK_SIZE) * BLOCK_SIZE
+            self.x = randint(1, (WIN_SIZE - BLOCK_SIZE)/BLOCK_SIZE) * BLOCK_SIZE
+            self.y = randint(1, (WIN_SIZE - BLOCK_SIZE)/BLOCK_SIZE) * BLOCK_SIZE
             self.exists = True
 
     def check_if_eaten(self, snake):
@@ -147,11 +147,12 @@ def main():
     snake = add_block(snake)
     snake = add_block(snake)
 
+    ticker = 0
     game_over = False
     food = Food()
     # Game loop
     while game_over == False:
-        clock.tick(10)
+        clock.tick(60)
         for event in pg.event.get():
             game_over = check_keypress(event, head)
         if game_over == True:
@@ -160,8 +161,10 @@ def main():
         snake_pos = [block.get_pos() for block in snake]
         game_over = head.check_collision(snake_pos)
 
-        for s in snake:
-            s.update_pos()
+        if ticker == 3:
+            for s in snake:
+                s.update_pos()
+            ticker = 0
 
         food.add_food()
         eaten = food.check_if_eaten(snake_pos)
@@ -171,11 +174,13 @@ def main():
         # Clear the screen before the next frame
         screen.fill(black)
         # Draw block to screen
+        screen.blit(food.square, [food.x, food.y])
         for s in snake:
             screen.blit(s.square, [s.x, s.y])
-        screen.blit(food.square, [food.x, food.y])
         # Swap buffers
         pg.display.flip()
+
+        ticker += 1
 
     pg.quit()
 
