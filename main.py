@@ -9,8 +9,10 @@ WIN_SIZE = 500
 
 
 class Head():
-    blue = (0, 0, 255) # Colour of snake
-    start_params = (BLOCK_SIZE * 0.05, BLOCK_SIZE * 0.05, BLOCK_SIZE * 0.9, BLOCK_SIZE * 0.9)
+    blue = (0, 0, 255)  # Colour of snake
+    start_params = (BLOCK_SIZE * 0.05, BLOCK_SIZE * 0.05,
+                    BLOCK_SIZE * 0.9, BLOCK_SIZE * 0.9)
+
     def __init__(self, pos):
         """Head of snake"""
         self.x = pos[0]
@@ -21,7 +23,10 @@ class Head():
         self.square = None
 
     def make_block(self):
-        """Create a surface to contain a square and draw a square Rect object onto said surface"""
+        """
+        Create a surface to contain a square
+        Draw a square Rect object onto said surface
+        """
         self.square = pg.Surface((BLOCK_SIZE, BLOCK_SIZE), pg.SRCALPHA)
         # Draw a square onto the "square" surface
         pg.draw.rect(self.square, self.blue, self.start_params)
@@ -34,7 +39,7 @@ class Head():
         self.y += self.direction[1]
 
     def change_direction(self, new_dir):
-        """Change direction of snake without allowing it to go back in itself"""
+        """Change direction of snake without allowing it to go backwards"""
         if new_dir == 'u' and self.direction != [0, BLOCK_SIZE]:
             self.direction = [0, -BLOCK_SIZE]
         elif new_dir == 'd' and self.direction != [0, -BLOCK_SIZE]:
@@ -87,7 +92,10 @@ def add_block(snake_arr):
 
 
 def check_keypress(input_event, block_object):
-    """Take input event and change direction if arrow key or quit game if esc key or other exit signal"""
+    """
+    Take input event and change direction if arrow key
+    or quit game if esc key or other exit signal
+    """
     if input_event.type == pg.QUIT:
         return True
     elif input_event.type == pg.KEYDOWN:
@@ -114,12 +122,14 @@ class Food():
         self.square = None
 
     def add_food(self):
-        """If no food on window, create a new food block with random position on window"""
-        if self.exists == False:
-             # Create a surface to contain a square
+        """If no food present, create a new food block with random position"""
+        if self.exists is False:
+            # Create a surface to contain a square
             self.square = pg.Surface((BLOCK_SIZE, BLOCK_SIZE), pg.SRCALPHA)
             # Draw a square onto the "square" surface
-            pg.draw.rect(self.square, (255, 0, 0), (BLOCK_SIZE * 0.05, BLOCK_SIZE * 0.05 , BLOCK_SIZE * 0.9, BLOCK_SIZE * 0.9))
+            pg.draw.rect(self.square, (255, 0, 0),
+                         (BLOCK_SIZE * 0.05, BLOCK_SIZE * 0.05,
+                          BLOCK_SIZE * 0.9, BLOCK_SIZE * 0.9))
 
             self.x = randint(1, (WIN_SIZE - BLOCK_SIZE)/BLOCK_SIZE) * BLOCK_SIZE
             self.y = randint(1, (WIN_SIZE - BLOCK_SIZE)/BLOCK_SIZE) * BLOCK_SIZE
@@ -141,8 +151,8 @@ def main():
 
     clock = pg.time.Clock()
 
-    size = (WIN_SIZE, WIN_SIZE) # Size of window, (width, height)
-    black = (0, 0, 0) # Background colour of window
+    size = (WIN_SIZE, WIN_SIZE)  # Size of window, (width, height)
+    black = (0, 0, 0)  # Background colour of window
 
     # Place head of snake in centre of window
     start_coord = (WIN_SIZE / 2) - (BLOCK_SIZE / 2)
@@ -163,13 +173,13 @@ def main():
     game_over = False
     food = Food()
     # Game loop
-    while game_over == False:
+    while game_over is False:
         # Run game at 60 FPS
         clock.tick(60)
         # Monitor events and check for keypresses
         for event in pg.event.get():
             game_over = check_keypress(event, head)
-        if game_over == True:
+        if game_over is True:
             continue
 
         snake_pos = [block.get_pos() for block in snake]
@@ -184,7 +194,7 @@ def main():
 
         food.add_food()
         eaten = food.check_if_eaten(snake_pos)
-        if eaten == True:
+        if eaten is True:
             snake = add_block(snake)
 
         # Clear the window before the next frame
