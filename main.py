@@ -9,7 +9,7 @@ WIN_SIZE = 500
 
 class Head():
     blue = (0, 0, 255)
-    start_params = (0, 0, BLOCK_SIZE, BLOCK_SIZE)
+    start_params = (BLOCK_SIZE * 0.05, BLOCK_SIZE * 0.05, BLOCK_SIZE * 0.9, BLOCK_SIZE * 0.9)
     def __init__(self, pos):
         self.x = pos[0]
         self.y = pos[1]
@@ -108,7 +108,7 @@ class Food():
              # Create a surface to contain a square
             self.square = pg.Surface((BLOCK_SIZE, BLOCK_SIZE), pg.SRCALPHA)
             # Draw a square onto the "square" surface
-            pg.draw.rect(self.square, (255, 0, 0), (0, 0, BLOCK_SIZE, BLOCK_SIZE))
+            pg.draw.rect(self.square, (255, 0, 0), (BLOCK_SIZE * 0.05, BLOCK_SIZE * 0.05 , BLOCK_SIZE * 0.9, BLOCK_SIZE * 0.9))
 
             self.x = randint(1, (WIN_SIZE - BLOCK_SIZE)/BLOCK_SIZE) * BLOCK_SIZE
             self.y = randint(1, (WIN_SIZE - BLOCK_SIZE)/BLOCK_SIZE) * BLOCK_SIZE
