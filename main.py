@@ -4,8 +4,9 @@ import pygame as pg
 from random import randint
 
 # Define window parameters
-BLOCK_SIZE = 20
-WIN_SIZE = 500
+BLOCK_SIZE = 20  # Size of single block
+WIN_SIZE = 500  # Width and height of window
+UPDATE_FRAMES = 4  # How often to update snake position, controls game speed
 
 
 class Head():
@@ -13,14 +14,13 @@ class Head():
     start_params = (BLOCK_SIZE * 0.05, BLOCK_SIZE * 0.05,
                     BLOCK_SIZE * 0.9, BLOCK_SIZE * 0.9)
 
-    def __init__(self, pos):
+    def __init__(self, x, y):
         """Head of snake"""
-        self.x = pos[0]
-        self.y = pos[1]
-        self.last_x = self.x
-        self.last_y = self.y
-        self.direction = [0, -BLOCK_SIZE]
-        self.square = None
+        self.x, self.y = x, y
+        self.last_x: int = self.x
+        self.last_y: int = self.y
+        self.direction: Tuple[int, int] = (0, -1)
+        self.square: pg.Surface = None
 
     def make_block(self):
         """
@@ -35,52 +35,50 @@ class Head():
         """Last coords are used to update next block in the snake"""
         self.last_x = self.x
         self.last_y = self.y
-        self.x += self.direction[0]
-        self.y += self.direction[1]
+        self.x += self.direction[0] * BLOCK_SIZE
+        self.y += self.direction[1] * BLOCK_SIZE
 
     def change_direction(self, new_dir):
         """Change direction of snake without allowing it to go backwards"""
-        if new_dir == 'u' and self.direction != [0, BLOCK_SIZE]:
-            self.direction = [0, -BLOCK_SIZE]
-        elif new_dir == 'd' and self.direction != [0, -BLOCK_SIZE]:
-            self.direction = [0, BLOCK_SIZE]
-        elif new_dir == 'l' and self.direction != [BLOCK_SIZE, 0]:
-            self.direction = [-BLOCK_SIZE, 0]
-        elif new_dir == 'r' and self.direction != [-BLOCK_SIZE, 0]:
-            self.direction = [BLOCK_SIZE, 0]
+        # North/South
+        if new_dir[1] != -self.direction[1]:
+            self.direction = new_dir
+
+        # East/West
+        elif new_dir[0] != -self.direction[0]:
+            self.direction = new_dir
 
     def check_collision(self, pos_list):
         """Check if snake collides with wall or itself"""
         if self.x in (0, WIN_SIZE) or self.y in (0, WIN_SIZE):
             return True
 
-        if (self.x, self.y) in pos_list[3:]:
+        if (self.x, self.y) in pos_list[1:]:
             return True
 
         return False
 
-    def get_pos(self):
+    def get_last_pos(self):
         return (self.last_x, self.last_y)
+
+    def get_current_pos(self):
+        return (self.x, self.y)
 
 
 class Block(Head):
     def __init__(self, next_block):
         """Body of snake"""
         self.next = next_block
-        pos = next_block.get_pos()
-        self.x = pos[0]
-        self.y = pos[1]
-        self.last_x = self.x
-        self.last_y = self.y
+        self.x, self.y = next_block.get_last_pos()
+        self.last_x: int = self.x
+        self.last_y: int = self.y
         self.ready = 0
 
     def update_pos(self):
         """Use position of next block in snake to update current position"""
         self.last_x = self.x
         self.last_y = self.y
-        next_pos = self.next.get_pos()
-        self.x = next_pos[0]
-        self.y = next_pos[1]
+        self.x, self.y = self.next.get_last_pos()
 
 
 def add_block(snake_arr):
@@ -102,13 +100,13 @@ def check_keypress(input_event, block_object):
         if input_event.key == pg.K_ESCAPE:
             return True
         elif input_event.key == pg.K_UP:
-            block_object.change_direction('u')
+            block_object.change_direction([0, -1])
         elif input_event.key == pg.K_DOWN:
-            block_object.change_direction('d')
+            block_object.change_direction([0, 1])
         elif input_event.key == pg.K_LEFT:
-            block_object.change_direction('l')
+            block_object.change_direction([-1, 0])
         elif input_event.key == pg.K_RIGHT:
-            block_object.change_direction('r')
+            block_object.change_direction([1, 0])
 
     return False
 
@@ -135,9 +133,9 @@ class Food():
             self.y = randint(1, (WIN_SIZE - BLOCK_SIZE)/BLOCK_SIZE) * BLOCK_SIZE
             self.exists = True
 
-    def check_if_eaten(self, snake):
+    def check_if_eaten(self, snake_head):
         """If snake head is in food block, food is eaten"""
-        snake_x, snake_y = snake[0]
+        snake_x, snake_y = snake_head.get_last_pos()
         if (self.x <= snake_x <= self.x + BLOCK_SIZE * 0.9) and (self.y <= snake_y <= self.y + BLOCK_SIZE * 0.9):
             self.exists = False
             return True
@@ -160,7 +158,7 @@ def main():
     # Create window
     screen = pg.display.set_mode(size)
 
-    head = Head([start_coord, start_coord])
+    head = Head(start_coord, start_coord)
     head.make_block()
 
     # Make first three blocks of snake
@@ -174,26 +172,26 @@ def main():
     food = Food()
     # Game loop
     while game_over is False:
-        # Run game at 60 FPS
-        clock.tick(60)
+        # Run game at 30 FPS
+        clock.tick(30)
         # Monitor events and check for keypresses
         for event in pg.event.get():
             game_over = check_keypress(event, head)
         if game_over is True:
             continue
 
-        snake_pos = [block.get_pos() for block in snake]
-        game_over = head.check_collision(snake_pos)
 
         # Update snake position every 4 frames
-        if ticker == 3:
+        if ticker == UPDATE_FRAMES - 1:
             for s in snake:
                 s.update_pos()
+            snake_pos = [block.get_current_pos() for block in snake]
+            game_over = head.check_collision(snake_pos)
             ticker = 0
         ticker += 1
 
         food.add_food()
-        eaten = food.check_if_eaten(snake_pos)
+        eaten = food.check_if_eaten(head)
         if eaten is True:
             snake = add_block(snake)
 
