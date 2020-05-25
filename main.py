@@ -116,7 +116,7 @@ class Food():
 
     def check_if_eaten(self, snake):
         snake_x, snake_y = snake[0]
-        if self.x <= snake_x <= self.x + BLOCK_SIZE and self.y <= snake_y <= self.y + BLOCK_SIZE:
+        if (self.x <= snake_x <= self.x + BLOCK_SIZE * 0.9) and (self.y <= snake_y <= self.y + BLOCK_SIZE * 0.9):
             self.exists = False
             return True
 
