@@ -110,8 +110,8 @@ class Food():
             # Draw a square onto the "square" surface
             pg.draw.rect(self.square, (255, 0, 0), (0, 0, BLOCK_SIZE, BLOCK_SIZE))
 
-            self.x = randint(0, WIN_SIZE - BLOCK_SIZE)
-            self.y = randint(0, WIN_SIZE - BLOCK_SIZE)
+            self.x = randint(0, (WIN_SIZE - BLOCK_SIZE)/BLOCK_SIZE) * BLOCK_SIZE
+            self.y = randint(0, (WIN_SIZE - BLOCK_SIZE)/BLOCK_SIZE) * BLOCK_SIZE
             self.exists = True
 
     def check_if_eaten(self, snake):
