@@ -136,7 +136,7 @@ class Food():
     def check_if_eaten(self, snake_head):
         """If snake head is in food block, food is eaten"""
         snake_x, snake_y = snake_head.get_last_pos()
-        if (self.x <= snake_x <= self.x + BLOCK_SIZE * 0.9) and (self.y <= snake_y <= self.y + BLOCK_SIZE * 0.9):
+        if (self.x <= snake_x < self.x + BLOCK_SIZE) and (self.y <= snake_y < self.y + BLOCK_SIZE):
             self.exists = False
             return True
 
