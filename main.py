@@ -16,6 +16,7 @@ class Head():
 
     def __init__(self, x, y):
         """Head of snake"""
+        # Type hints
         self.x, self.y = x, y
         self.last_x: int = self.x
         self.last_y: int = self.y
@@ -129,8 +130,10 @@ class Food():
                          (BLOCK_SIZE * 0.05, BLOCK_SIZE * 0.05,
                           BLOCK_SIZE * 0.9, BLOCK_SIZE * 0.9))
 
-            self.x = randint(1, (WIN_SIZE - BLOCK_SIZE)/BLOCK_SIZE) * BLOCK_SIZE
-            self.y = randint(1, (WIN_SIZE - BLOCK_SIZE)/BLOCK_SIZE) * BLOCK_SIZE
+            self.x = randint(1, (WIN_SIZE - BLOCK_SIZE) /
+                             BLOCK_SIZE) * BLOCK_SIZE
+            self.y = randint(1, (WIN_SIZE - BLOCK_SIZE) /
+                             BLOCK_SIZE) * BLOCK_SIZE
             self.exists = True
 
     def check_if_eaten(self, snake_head):
@@ -157,6 +160,8 @@ def main():
 
     # Create window
     screen = pg.display.set_mode(size)
+    # Set window title
+    pg.display.set_caption("PySnake")
 
     head = Head(start_coord, start_coord)
     head.make_block()
@@ -179,7 +184,6 @@ def main():
             game_over = check_keypress(event, head)
         if game_over is True:
             continue
-
 
         # Update snake position every 4 frames
         if ticker == UPDATE_FRAMES - 1:
